@@ -422,6 +422,7 @@ end
 function Tailscale:addToMainMenu(menu_items)
     menu_items.tailscale = {
         text = _("Tailscale"),
+        sorting_hint = "network",
         sub_item_table = {
             {
                 text = _("Start Tailscaled"),

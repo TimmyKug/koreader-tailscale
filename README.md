@@ -15,7 +15,7 @@ This plugin is based on mitanshu7's kual extension for tailscale (https://github
 
 ## Tested on
 
-PaperWhite 11th Generation (PW3) — `armv7l`, Linux 3.0.35-lab126.
+Jailbroken Kindle PaperWhite 11th Generation — `armv7l`.
 
 ## Installation
 

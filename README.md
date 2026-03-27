@@ -2,6 +2,10 @@
 
 Connect your KOReader device to a Tailscale VPN network — SSH in from anywhere, or route KOReader's traffic through your tailnet.
 
+## Credits
+
+This plugin is based on mitanshu7's kual extension for tailscale (https://github.com/mitanshu7/tailscale_kual.git)
+
 ## Prerequisites
 
 1. Jailbroken Kindle (or any KOReader-supported device). ([see](https://kindlemodding.gitbook.io/kindlemodding))
@@ -11,7 +15,7 @@ Connect your KOReader device to a Tailscale VPN network — SSH in from anywhere
 
 ## Tested on
 
-PaperWhite 7th Generation (PW3) — `armv7l`, Linux 3.0.35-lab126.
+PaperWhite 11th Generation (PW3) — `armv7l`, Linux 3.0.35-lab126.
 
 ## Installation
 

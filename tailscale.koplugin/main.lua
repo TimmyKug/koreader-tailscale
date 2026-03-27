@@ -144,11 +144,21 @@ function Tailscale:startTailscaled(mode)
             self.tailscaled_bin, cmd_args, log
         )
         os.execute(cmd)
-        os.execute("sleep 3")
 
-        if self:isRunning("tailscaled") then
+        -- Poll for the socket file (up to 10s) rather than a fixed sleep +
+        -- pgrep, so slow devices don't get a false "failed" alert.
+        local ready = false
+        for _ = 1, 10 do
+            os.execute("sleep 1")
+            if lfs.attributes(SOCKET_PATH, "mode") == "socket" then
+                ready = true
+                break
+            end
+        end
+
+        if ready then
             local label = ({ userspace = "userspace", proxy = "proxy", tun = "kernel TUN" })[mode]
-            self:showInfo(string.format(_("tailscaled started (%s)."), label), 3)
+            self:showInfo(string.format(_("tailscaled started (%s).\nNow tap \"Start Tailscale (Connect)\" to join your network."), label), 5)
         else
             self:showInfo(_("tailscaled failed to start.\nSee log in plugin's bin/ directory."), 5)
         end

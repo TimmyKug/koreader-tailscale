@@ -6,11 +6,11 @@ TUN support is known to work, so there is no userspace or proxy mode.
 
 ## Credits
 
-This plugin is based on mitanshu7's kual extension for tailscale (https://github.com/mitanshu7/tailscale_kual.git)
+This plugin is based on [mitanshu7's kual extension for tailscale](https://github.com/mitanshu7/tailscale_kual.git)
 
 ## Prerequisites
 
-1. Jailbroken Kindle (or any KOReader-supported device). ([see](https://kindlemodding.gitbook.io/kindlemodding))
+1. Jailbroken Kindle (or any KOReader-supported device).
 2. [KOReader](https://koreader.rocks) installed.
 3. Wi-Fi connectivity on the device.
 4. A [Tailscale account](https://tailscale.com) and an auth key.
@@ -34,7 +34,7 @@ Jailbroken Kindle PaperWhite 11th Generation — `armv7l`.
    [Tailscale auth key](https://tailscale.com/kb/1085/auth-keys).
    Get one from [tailscale.com/admin → Settings → Keys](https://login.tailscale.com/admin/settings/keys).
 
-5. Open **Start Service and Connect**. This will start `tailscaled` in kernel TUN mode
+5. Click **Start Service and Connect**. This will start `tailscaled` in kernel TUN mode
    if needed, then connect the device to your tailnet.
 
 6. Your device will appear in your

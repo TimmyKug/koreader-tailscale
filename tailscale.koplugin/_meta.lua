@@ -1,6 +1,6 @@
 return {
     name        = "Tailscale",
-    fullname    = "Tailscale VPN",
-    description = "Connect your device to a Tailscale VPN network. "
-                  .. "Uses kernel-TUN mode with bundled binaries.",
+    fullname    = "KOReader Tailscale Plugin",
+    description = "Self-contained KOReader plugin for Tailscale on "
+                  .. "compatible e-readers using kernel-TUN mode.",
 }

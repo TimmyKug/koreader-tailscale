@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="google-site-verification" content="FIWfzqQc20y7yRAZZNdD7ZNvCmDr9U4udMLsIb11Da8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>KOReader Tailscale Plugin for Kindle and Kobo E-Readers</title>
+    <meta
+      name="description"
+      content="Self-contained KOReader plugin for running Tailscale on a Kindle or other compatible e-reader for SSH, remote access, OPDS, and self-hosted library workflows."
+    >
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://timmykug.github.io/koreader-tailscale-plugin/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="koreader-tailscale-plugin">
+    <meta property="og:title" content="KOReader Tailscale Plugin for Kindle and Kobo E-Readers">
+    <meta
+      property="og:description"
+      content="A focused KOReader plugin for Tailscale on compatible e-readers, with self-contained binaries, kernel-TUN mode, and direct tailnet access."
+    >
+    <meta property="og:url" content="https://timmykug.github.io/koreader-tailscale-plugin/">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="KOReader Tailscale Plugin for Kindle and Kobo E-Readers">
+    <meta
+      name="twitter:description"
+      content="Self-contained KOReader plugin for Tailscale, focused on direct remote access and self-hosted reading workflows on compatible e-readers."
+    >
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "KOReader Tailscale Plugin",
+        "description": "Self-contained KOReader plugin for running Tailscale on compatible e-readers using kernel-TUN mode.",
+        "url": "https://timmykug.github.io/koreader-tailscale-plugin/",
+        "codeRepository": "https://github.com/TimmyKug/koreader-tailscale-plugin",
+        "programmingLanguage": "Lua",
+        "keywords": [
+          "KOReader plugin",
+          "Tailscale on e-reader",
+          "Kindle",
+          "Kobo",
+          "remote access",
+          "self-hosted library",
+          "OPDS",
+          "Syncthing",
+          "SSH"
+        ]
+      }
+    </script>
+
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f1e7;
+        --paper: #fffdf8;
+        --text: #1d1b18;
+        --muted: #5d554b;
+        --accent: #6e2c00;
+        --border: #ddd2bf;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #efe7d8 0%, var(--bg) 22rem);
+        color: var(--text);
+        font: 18px/1.6 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      }
+
+      main {
+        display: block;
+        max-width: 52rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+      }
+
+      header,
+      section,
+      footer {
+        background: var(--paper);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.2;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        margin-bottom: 0.75rem;
+      }
+
+      h2 {
+        font-size: 1.35rem;
+        color: var(--accent);
+      }
+
+      p,
+      li {
+        max-width: 66ch;
+      }
+
+      ul {
+        padding-left: 1.2rem;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .lede {
+        font-size: 1.1rem;
+        color: var(--muted);
+      }
+
+      .note {
+        padding: 0.9rem 1rem;
+        background: #f2eadc;
+        border-left: 4px solid var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>KOReader Tailscale Plugin for Kindle and Kobo E-Readers</h1>
+        <p class="lede">
+          A lightweight, self-contained KOReader plugin for adding Tailscale to a compatible e-reader so it can reach private services over your tailnet.
+        </p>
+        <p>
+          This project focuses on a practical remote access workflow: install official Tailscale ARM binaries, save an auth key, connect from KOReader, and keep the device reachable for OPDS, SSH, and self-hosted library setups.
+        </p>
+        <p>
+          <a href="https://github.com/TimmyKug/koreader-tailscale-plugin">GitHub repository</a><br>
+          <a href="https://github.com/TimmyKug/koreader-tailscale-plugin/blob/main/README.md">README and installation guide</a>
+        </p>
+      </header>
+
+      <div>
+        <section aria-labelledby="what-it-does">
+          <h2 id="what-it-does">What It Does</h2>
+          <p>
+            The plugin adds a KOReader menu for installing and updating Tailscale binaries, starting and stopping <code>tailscaled</code>, connecting the device to a tailnet, and checking connection status.
+          </p>
+          <ul>
+            <li>Self-contained plugin directory with local binaries, state, and logs</li>
+            <li>Kernel-TUN mode for direct network access on compatible devices</li>
+            <li>No KUAL dependency and no extra proxy layer in the main workflow</li>
+            <li>Downloads current ARM builds directly from Tailscale's package site</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="use-cases">
+          <h2 id="use-cases">Use Cases</h2>
+          <ul>
+            <li>Reach a private OPDS endpoint or self-hosted library from KOReader over Tailscale</li>
+            <li>Use SSH for remote access to a jailbroken Kindle on your tailnet</li>
+            <li>Keep an e-reader inside a private home lab or NAS workflow without exposing services publicly</li>
+            <li>Support broader self-hosted setups that also involve Syncthing, OPDS, and SSH</li>
+          </ul>
+        </section>
+
+        <section aria-labelledby="why-this-repo">
+          <h2 id="why-this-repo">Why This Repo Is Different</h2>
+          <p>
+            This repository is intentionally narrow. It is not a broad Tailscale packaging project for every e-reader scenario. It is a minimal KOReader plugin aimed at direct Tailscale connectivity where kernel TUN support is available.
+          </p>
+          <p>
+            That keeps the setup simpler for people who mainly want a Kindle-first workflow and a clean path to private remote access from KOReader.
+          </p>
+        </section>
+
+        <section aria-labelledby="compatibility">
+          <h2 id="compatibility">Compatibility</h2>
+          <p class="note">
+            Tested on a jailbroken Kindle Paperwhite 11th Generation (<code>armv7l</code>). Kobo and other KOReader devices may work when compatible kernel TUN support is available, but they are not the primary target of this repository.
+          </p>
+        </section>
+      </div>
+
+      <footer>
+        <p>
+          Canonical project URL:
+          <a href="https://timmykug.github.io/koreader-tailscale-plugin/">https://timmykug.github.io/koreader-tailscale-plugin/</a>
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>

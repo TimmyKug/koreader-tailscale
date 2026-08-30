@@ -184,10 +184,11 @@ function Tailscale:connectTailscaleInternal()
 
     -- Try reconnecting without an auth key first (works when the node is
     -- already registered and key expiry has been disabled).  A 15-second
-    -- timeout prevents hanging on a fresh/reset node that would otherwise
-    -- wait for a login URL indefinitely.
+    -- Tailscale's own timeout prevents hanging on a fresh/reset node that
+    -- would otherwise wait for a login URL indefinitely. Using the CLI flag
+    -- also avoids depending on a separate `timeout` utility on the device.
     local reconnect = string.format(
-        'timeout 15 "%s" up --ssh >> "%s" 2>&1', self.tailscale_bin, log)
+        '"%s" up --ssh --timeout=15s >> "%s" 2>&1', self.tailscale_bin, log)
     if self:exec(reconnect) then
         self:showInfo(_("Connected to Tailscale!"), 3)
         return
@@ -200,8 +201,11 @@ function Tailscale:connectTailscaleInternal()
         return
     end
 
+    -- The default Tailscale timeout is 0 (wait forever), so bound the auth
+    -- attempt as well. This is especially important when stale state belongs
+    -- to another tailnet or the saved key is expired.
     local auth_cmd = string.format(
-        '"%s" up --ssh --auth-key="%s" >> "%s" 2>&1',
+        '"%s" up --ssh --timeout=30s --auth-key="%s" >> "%s" 2>&1',
         self.tailscale_bin, auth_key, log)
     if self:exec(auth_cmd) then
         self:showInfo(_("Connected to Tailscale!"), 3)
@@ -399,7 +403,7 @@ function Tailscale:setAuthKey()
         title       = _("Set Tailscale Auth Key"),
         input       = current,
         input_hint  = _("tskey-auth-…"),
-        description = _("Paste your Tailscale auth key.\nGet one from tailscale.com/admin → Settings → Keys."),
+        description = _("Paste your Tailscale auth key.\nGet one from tailscale.com/admin → Settings → Keys.\n\nSwitching accounts? Reset the saved node state first; restarting the device does not clear it."),
         buttons = {
             {
                 {

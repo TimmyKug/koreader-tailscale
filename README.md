@@ -1,140 +1,115 @@
-# KOReader Tailscale Plugin for Kindle, Kobo, and Other E-Readers
+# KOReader Tailscale Plugin
 
-Self-contained KOReader plugin that installs and runs Tailscale on a compatible e-reader for private tailnet access, SSH, and self-hosted reading workflows.
+A minimalistic Tailscale plugin for KOReader. Install it, paste an auth key, and your
+e-reader joins your tailnet.
 
-Project page: https://timothykugler.de/koreader-tailscale/
+Project page: <https://timothykugler.de/koreader-tailscale/>
 
-## What This Project Does
+## What it is
 
-`koreader-tailscale-plugin` adds a small **KOReader plugin** menu that lets you:
+One KOReader plugin, one menu. It downloads the official Tailscale ARM binaries onto the
+device, stores the auth key, runs `tailscaled` in kernel-TUN mode, and brings the device
+up on your tailnet with `tailscale up --ssh`.
 
-- install or update official Tailscale ARM binaries directly on the device
-- save a Tailscale auth key for first-time registration
-- start and stop `tailscaled`
-- connect and disconnect the device from your tailnet
-- inspect connection status from inside KOReader
+Everything lives inside the plugin folder — binaries, node state and logs all sit in
+`tailscale.koplugin/bin/`. There is no KUAL extension to install, no userspace proxy
+mode, and nothing scattered across the rest of the device. Deleting the folder removes
+the whole thing.
 
-The plugin keeps its binaries, state, and logs inside `tailscale.koplugin/bin/`, so the setup stays local to the plugin instead of spreading files across other extensions.
+That buys you the usual things a tailnet is good for from an e-reader:
 
-## Why Someone Would Use It
+- SSH into a jailbroken Kindle from anywhere
+- reach a private OPDS catalogue or home library server from KOReader
+- keep the reader on a private network instead of exposing services publicly
 
-This repository is for people who want **Tailscale on an e-reader** without building a larger custom stack around KOReader.
+The plugin provides the network path only. It does not bundle an OPDS server, Syncthing
+or an SSH server — those live elsewhere on your tailnet.
 
-Typical reasons to use it:
+## How to set it up
 
-- reach a private **self-hosted library** or **OPDS** catalog from KOReader over Tailscale
-- get **remote access** to a jailbroken **Kindle** over **SSH**
-- keep an e-reader on a private network for home lab, NAS, or ebook workflows
-- pair KOReader with broader self-hosted setups that also involve **Syncthing**, OPDS, or SSH
+1. Copy the `tailscale.koplugin/` folder into KOReader's `plugins/` directory. On Kindle
+   that is usually `/mnt/us/koreader/plugins/`.
+2. Restart KOReader so the plugin is picked up.
+3. Generate an auth key at
+   [tailscale.com/admin → Settings → Keys](https://login.tailscale.com/admin/settings/keys).
+4. On the device, open the network menu → **Tailscale → Setup → Install / Update
+   Binaries**. This pulls the current stable release from `pkgs.tailscale.com`, so the
+   device needs Wi-Fi. It can take a few minutes.
+5. **Tailscale → Setup → Set Auth Key** and paste the key.
+6. **Tailscale → Start Service and Connect**. The device should appear in the Tailscale
+   admin console; from there `ssh root@<tailscale-ip>` works.
+7. Disable key expiry for the device in the admin console. Without it you have to paste a
+   fresh key every time the key expires.
 
-The plugin does not bundle Syncthing, an OPDS server, or an SSH server. It provides the network path that makes those services reachable from the device when they already exist elsewhere on your tailnet.
+**Disconnect and Stop Service** is the reverse: it runs `tailscale down`, stops the
+daemon and cleans up.
 
-## Who It Is For
+### The menu
 
-- KOReader users on a jailbroken Kindle who want direct tailnet access from the reader
-- People running private ebook infrastructure and wanting cleaner access from an e-reader
-- Anyone who prefers a focused KOReader integration over a more general Tailscale packaging project
+| Item | Does |
+|---|---|
+| Start Service and Connect | starts `tailscaled` if needed, then `tailscale up --ssh` |
+| Disconnect and Stop Service | `tailscale down`, stop the daemon, clean up |
+| Setup → Set Auth Key | saves the key used for first registration |
+| Setup → Install / Update Binaries | fetches or updates the bundled binaries |
+| Advanced → Start / Stop Service | daemon only |
+| Advanced → Connect / Disconnect | client only |
+| Advanced → Connection Status | shows `tailscale status` |
 
-## What Makes This Repo Different
-
-This implementation is intentionally narrower than similar `koreader-tailscale` repositories:
-
-- it is a KOReader-first plugin, not a KUAL extension
-- it is self-contained, with binaries and state stored inside the plugin directory
-- it uses a **kernel-TUN-only** approach instead of mixing in userspace or proxy modes
-- it downloads current binaries from `pkgs.tailscale.com` directly on the device
-- it is optimized for a practical remote access workflow rather than a broad configuration surface
-
-If you want the simplest path to direct Tailscale connectivity on a compatible KOReader device, that minimal approach is the point of this repository.
+**Install / Update Binaries** checks the latest stable ARM package, skips the work if the
+installed version is already current, and backs up existing binaries as `*.bak` before
+replacing them.
 
 ## Compatibility
 
-The current implementation is tested on:
+Two hard requirements:
 
-- jailbroken Kindle Paperwhite 11th Generation
-- architecture: `armv7l`
+- the device kernel needs a working TUN device at `/dev/net/tun` — there is no
+  userspace-networking fallback
+- the plugin installs the 32-bit `arm` build, which is what KOReader on Kindle runs on; a
+  device with a 64-bit-only userland is not handled
 
-It should be considered **Kindle-first**. **Kobo** and other KOReader devices may work if they have compatible kernel TUN support, but that is not the main target of this repository.
+One SSH command answers the question for any device: `ls -l /dev/net/tun`. If it is
+there, the plugin should work.
 
-## Installation
+| Device | Status |
+|---|---|
+| Kindle Paperwhite 5 (11th gen, `armv7l`) | **Tested** — this is the device it was built and used on |
+| Kindle Paperwhite 4 (10th gen), Oasis 2 & 3, Kindle 10th/11th gen, Scribe | Expected to work — same jailbreak era and kernel generation, but untested |
+| Older Kindles (Paperwhite 1–3, Voyage, Touch) | Unverified — TUN support is not a given on these kernels, so check first |
+| Kobo and other KOReader devices | May work with kernel TUN and a 32-bit userland, but not a target here |
 
-1. Copy `tailscale.koplugin/` into KOReader's `plugins/` directory.
-   On Kindle this is usually `/mnt/us/koreader/plugins/`.
-2. Restart KOReader, or reload plugins from the plugin manager.
-3. Open `KOReader menu -> Tools -> Tailscale -> Setup -> Install / Update Binaries`.
-4. Open `Tailscale -> Setup -> Set Auth Key` and paste a Tailscale auth key.
-5. Tap `Start Service and Connect` to launch `tailscaled` and run `tailscale up`.
-6. Confirm the device appears in the Tailscale admin console, then connect with `ssh root@<tailscale-ip>` if needed.
-7. For persistent reconnects, disable key expiry for the device in the Tailscale admin console after the first successful login.
+The Kindle must be jailbroken with KOReader installed.
 
-## How It Works
+## Switching accounts
 
-The plugin runs `tailscaled` in kernel TUN mode and exposes a small KOReader menu around that workflow.
+Tailscale stores the device's tailnet identity in `tailscale.koplugin/bin/tailscaled.state`.
+Restarting KOReader or the device does **not** clear it, so connecting to a different
+account needs a reset:
 
-Primary actions:
-
-- `Start Service and Connect`: start `tailscaled` if needed, then run `tailscale up --ssh`
-- `Disconnect and Stop Service`: run `tailscale down`, stop `tailscaled`, and clean up
-
-Setup actions:
-
-- `Set Auth Key`: save the auth key used for first registration
-- `Install / Update Binaries`: fetch or update the bundled `tailscale` and `tailscaled` binaries
-
-Advanced actions:
-
-- `Start Service`
-- `Stop Service`
-- `Connect to Tailnet`
-- `Disconnect from Tailnet`
-- `Connection Status`
-
-## Practical Use Cases
-
-- Use KOReader with a private OPDS catalog on a home server without exposing it publicly.
-- SSH into a Kindle over Tailscale for maintenance, logs, or file transfer.
-- Keep an e-reader inside a private network so it can reach self-hosted tools while away from home.
-- Support a broader reading setup where KOReader, Syncthing, SSH, and OPDS are all part of the same tailnet workflow.
-
-## Updating Binaries
-
-`Install / Update Binaries`:
-
-- checks the latest stable ARM package published by Tailscale
-- skips work if the installed version is already current
-- backs up existing binaries as `*.bak` before replacement
-- creates an empty `auth.key` on first install
-
-## Resetting
-
-Tailscale stores the device's account and tailnet identity in
-`tailscale.koplugin/bin/tailscaled.state`. Restarting KOReader or force-restarting
-the e-reader does **not** clear that identity.
-
-Reset the local state before connecting the device to a different Tailscale
-account, or when replacing an expired/deauthorized identity:
-
-1. Use `Disconnect and Stop Service`.
-2. Rename `tailscaled.state` to `tailscaled.state.old` in
-   `tailscale.koplugin/bin/`. Renaming makes the reset reversible.
-3. Use `Set Auth Key` to save a fresh key generated by the account you want to
-   join.
-4. Use `Start Service and Connect`.
-5. After the new connection works, remove the old device entry from the old
-   Tailscale admin console if you still have access to it.
-
-The connection commands have bounded waits, so an unavailable network, stale
-identity, or rejected auth key should return an error instead of leaving KOReader
-on the connecting message indefinitely. Check `tailscale_start.log` for the
-specific error.
+1. **Disconnect and Stop Service**.
+2. Rename `tailscaled.state` to `tailscaled.state.old` in `bin/`. Renaming keeps the reset
+   reversible.
+3. **Set Auth Key** with a fresh key from the account you want to join.
+4. **Start Service and Connect**.
+5. Once that works, remove the old device entry from the previous admin console.
 
 ## Troubleshooting
 
-- Logs are written to `tailscale.koplugin/bin/`.
-- Keep the device screen on while testing because Kindle may suspend Wi-Fi when the screen sleeps.
-- SSH may not work while the device is connected over USB.
-- If binary download fails, check Wi-Fi connectivity and try again from KOReader.
+- Logs are written to `tailscale.koplugin/bin/`. `tailscale_start.log` has the connection
+  errors, `tailscaled_tun.log` the daemon ones.
+- Keep the screen awake while testing — Kindle drops Wi-Fi when it sleeps.
+- SSH tends not to work while the device is plugged in over USB.
+- If the download fails, check Wi-Fi and retry from KOReader.
+- The connect commands have bounded timeouts, so a dead network, stale identity or
+  rejected key returns an error instead of leaving KOReader stuck on "connecting".
+
+## Support
+
+The plugin is free and always will be. If it saved you an afternoon, you can
+[buy me a coffee](https://buymeacoffee.com/timmykug).
 
 ## Credits
 
-This plugin is based on [mitanshu7's kual extension for tailscale](https://github.com/mitanshu7/tailscale_kual.git), then simplified into a self-contained KOReader plugin workflow.
+Based on [mitanshu7's Tailscale KUAL extension](https://github.com/mitanshu7/tailscale_kual),
+reworked into a self-contained KOReader plugin.

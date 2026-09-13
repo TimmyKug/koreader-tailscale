@@ -4,28 +4,28 @@
     <meta charset="utf-8">
     <meta name="google-site-verification" content="FIWfzqQc20y7yRAZZNdD7ZNvCmDr9U4udMLsIb11Da8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>KOReader Tailscale Plugin for Kindle and Kobo E-Readers</title>
+    <title>KOReader Tailscale Plugin for Kindle</title>
     <meta
       name="description"
-      content="Self-contained KOReader plugin for running Tailscale on a Kindle or other compatible e-reader for SSH, remote access, OPDS, and self-hosted library workflows."
+      content="A minimal KOReader plugin that installs and runs Tailscale on a jailbroken Kindle, so the e-reader can join your tailnet for SSH, OPDS and self-hosted reading workflows."
     >
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://timothykugler.de/koreader-tailscale/">
 
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="koreader-tailscale-plugin">
-    <meta property="og:title" content="KOReader Tailscale Plugin for Kindle and Kobo E-Readers">
+    <meta property="og:site_name" content="koreader-tailscale">
+    <meta property="og:title" content="KOReader Tailscale Plugin for Kindle">
     <meta
       property="og:description"
-      content="A focused KOReader plugin for Tailscale on compatible e-readers, with self-contained binaries, kernel-TUN mode, and direct tailnet access."
+      content="A minimal KOReader plugin for Tailscale on e-readers: self-contained binaries, kernel-TUN mode, direct tailnet access."
     >
     <meta property="og:url" content="https://timothykugler.de/koreader-tailscale/">
 
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="KOReader Tailscale Plugin for Kindle and Kobo E-Readers">
+    <meta name="twitter:title" content="KOReader Tailscale Plugin for Kindle">
     <meta
       name="twitter:description"
-      content="Self-contained KOReader plugin for Tailscale, focused on direct remote access and self-hosted reading workflows on compatible e-readers."
+      content="A minimal KOReader plugin for Tailscale on e-readers: self-contained binaries, kernel-TUN mode, direct tailnet access."
     >
 
     <script type="application/ld+json">
@@ -33,20 +33,20 @@
         "@context": "https://schema.org",
         "@type": "SoftwareSourceCode",
         "name": "KOReader Tailscale Plugin",
-        "description": "Self-contained KOReader plugin for running Tailscale on compatible e-readers using kernel-TUN mode.",
+        "description": "Minimal KOReader plugin that installs and runs Tailscale on compatible e-readers using kernel-TUN mode.",
         "url": "https://timothykugler.de/koreader-tailscale/",
         "codeRepository": "https://github.com/TimmyKug/koreader-tailscale",
         "programmingLanguage": "Lua",
+        "license": "https://github.com/TimmyKug/koreader-tailscale",
         "keywords": [
           "KOReader plugin",
-          "Tailscale on e-reader",
+          "Tailscale",
           "Kindle",
-          "Kobo",
-          "remote access",
-          "self-hosted library",
+          "Paperwhite",
+          "e-reader",
+          "SSH",
           "OPDS",
-          "Syncthing",
-          "SSH"
+          "self-hosted"
         ]
       }
     </script>
@@ -54,147 +54,294 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #f6f1e7;
-        --paper: #fffdf8;
+        --bg: #f4efe6;
+        --paper: #fffdf9;
         --text: #1d1b18;
-        --muted: #5d554b;
-        --accent: #6e2c00;
-        --border: #ddd2bf;
+        --muted: #5f574c;
+        --accent: #7a3410;
+        --line: #e2d8c7;
+        --code-bg: #f3ece0;
       }
 
-      * {
-        box-sizing: border-box;
-      }
+      * { box-sizing: border-box; }
 
       body {
         margin: 0;
-        background: linear-gradient(180deg, #efe7d8 0%, var(--bg) 22rem);
+        padding: 0;
+        background: var(--bg);
         color: var(--text);
-        font: 18px/1.6 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        font: 18px/1.65 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        -webkit-font-smoothing: antialiased;
       }
 
-      main {
-        display: block;
-        max-width: 52rem;
+      .sheet {
+        max-width: 44rem;
         margin: 0 auto;
-        padding: 2rem 1.25rem 4rem;
+        padding: 3.5rem 1.25rem 4rem;
       }
 
-      header,
-      section,
-      footer {
-        background: var(--paper);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-      }
-
-      h1,
-      h2 {
-        line-height: 1.2;
-        margin-top: 0;
-      }
+      header { margin-bottom: 3rem; }
 
       h1 {
-        font-size: clamp(2rem, 4vw, 3rem);
-        margin-bottom: 0.75rem;
-      }
-
-      h2 {
-        font-size: 1.35rem;
-        color: var(--accent);
-      }
-
-      p,
-      li {
-        max-width: 66ch;
-      }
-
-      ul {
-        padding-left: 1.2rem;
-      }
-
-      a {
-        color: var(--accent);
+        margin: 0 0 0.9rem;
+        font-size: clamp(1.9rem, 5vw, 2.7rem);
+        line-height: 1.15;
+        letter-spacing: -0.01em;
       }
 
       .lede {
-        font-size: 1.1rem;
+        margin: 0 0 1.4rem;
+        font-size: 1.12rem;
         color: var(--muted);
+        max-width: 34rem;
       }
 
-      .note {
-        padding: 0.9rem 1rem;
-        background: #f2eadc;
-        border-left: 4px solid var(--accent);
+      section { margin-bottom: 3rem; }
+
+      h2 {
+        margin: 0 0 0.9rem;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      p, li { max-width: 62ch; }
+      p { margin: 0 0 1rem; }
+
+      ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
+      li { margin-bottom: 0.45rem; }
+
+      a { color: var(--accent); text-underline-offset: 2px; }
+
+      code {
+        padding: 0.08em 0.35em;
+        background: var(--code-bg);
+        border-radius: 4px;
+        font: 0.86em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .links li { margin: 0; }
+
+      .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--accent);
+        text-decoration: none;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.9rem;
+      }
+
+      .btn:hover { border-color: var(--accent); }
+
+      .btn-primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fffdf9;
+      }
+
+      .table-scroll { overflow-x: auto; margin-bottom: 1rem; }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        min-width: 30rem;
+        font-size: 0.95rem;
+      }
+
+      th, td {
+        text-align: left;
+        padding: 0.55rem 0.8rem 0.55rem 0;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      th {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .fine { color: var(--muted); font-size: 0.95rem; }
+
+      footer {
+        margin-top: 3.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 30rem) {
+        body { font-size: 17px; }
+        .sheet { padding-top: 2.25rem; }
       }
     </style>
   </head>
   <body>
-    <main>
+    <div class="sheet">
       <header>
-        <h1>KOReader Tailscale Plugin for Kindle and Kobo E-Readers</h1>
+        <h1>KOReader Tailscale Plugin</h1>
         <p class="lede">
-          A lightweight, self-contained KOReader plugin for adding Tailscale to a compatible e-reader so it can reach private services over your tailnet.
+          A minimalistic Tailscale plugin for KOReader. Install it, paste an auth key,
+          and your e-reader joins your tailnet.
         </p>
-        <p>
-          This project focuses on a practical remote access workflow: install official Tailscale ARM binaries, save an auth key, connect from KOReader, and keep the device reachable for OPDS, SSH, and self-hosted library setups.
-        </p>
-        <p>
-          <a href="https://github.com/TimmyKug/koreader-tailscale">GitHub repository</a><br>
-          <a href="https://github.com/TimmyKug/koreader-tailscale/blob/main/README.md">README and installation guide</a>
-        </p>
+        <ul class="links">
+          <li><a class="btn btn-primary" href="https://github.com/TimmyKug/koreader-tailscale">GitHub repository</a></li>
+          <li><a class="btn" href="https://buymeacoffee.com/timmykug">☕ Buy me a coffee</a></li>
+        </ul>
       </header>
 
-      <div>
-        <section aria-labelledby="what-it-does">
-          <h2 id="what-it-does">What It Does</h2>
+      <main>
+        <section aria-labelledby="what">
+          <h2 id="what">What it is</h2>
           <p>
-            The plugin adds a KOReader menu for installing and updating Tailscale binaries, starting and stopping <code>tailscaled</code>, connecting the device to a tailnet, and checking connection status.
-          </p>
-          <ul>
-            <li>Self-contained plugin directory with local binaries, state, and logs</li>
-            <li>Kernel-TUN mode for direct network access on compatible devices</li>
-            <li>No KUAL dependency and no extra proxy layer in the main workflow</li>
-            <li>Downloads current ARM builds directly from Tailscale's package site</li>
-          </ul>
-        </section>
-
-        <section aria-labelledby="use-cases">
-          <h2 id="use-cases">Use Cases</h2>
-          <ul>
-            <li>Reach a private OPDS endpoint or self-hosted library from KOReader over Tailscale</li>
-            <li>Use SSH for remote access to a jailbroken Kindle on your tailnet</li>
-            <li>Keep an e-reader inside a private home lab or NAS workflow without exposing services publicly</li>
-            <li>Support broader self-hosted setups that also involve Syncthing, OPDS, and SSH</li>
-          </ul>
-        </section>
-
-        <section aria-labelledby="why-this-repo">
-          <h2 id="why-this-repo">Why This Repo Is Different</h2>
-          <p>
-            This repository is intentionally narrow. It is not a broad Tailscale packaging project for every e-reader scenario. It is a minimal KOReader plugin aimed at direct Tailscale connectivity where kernel TUN support is available.
+            One KOReader plugin, one menu. It downloads the official Tailscale ARM
+            binaries onto the device, stores the auth key, runs <code>tailscaled</code> in
+            kernel-TUN mode, and brings the device up on your tailnet with
+            <code>tailscale up --ssh</code>.
           </p>
           <p>
-            That keeps the setup simpler for people who mainly want a Kindle-first workflow and a clean path to private remote access from KOReader.
+            Everything lives inside the plugin folder — binaries, node state and logs all
+            sit in <code>tailscale.koplugin/bin/</code>. There is no KUAL extension to
+            install, no userspace proxy mode, and nothing scattered across the rest of the
+            device. Deleting the folder removes the whole thing.
+          </p>
+          <p>
+            That buys you the usual things a tailnet is good for from an e-reader: SSH into
+            a jailbroken Kindle from anywhere, reach a private OPDS catalogue or home
+            library server, and keep the reader on a private network rather than exposing
+            anything publicly. The plugin provides the network path only — it does not
+            bundle an OPDS server, Syncthing or an SSH server.
+          </p>
+        </section>
+
+        <section aria-labelledby="setup">
+          <h2 id="setup">How to set it up</h2>
+          <ol>
+            <li>
+              Copy the <code>tailscale.koplugin/</code> folder into KOReader's
+              <code>plugins/</code> directory. On Kindle that is usually
+              <code>/mnt/us/koreader/plugins/</code>.
+            </li>
+            <li>Restart KOReader so the plugin is picked up.</li>
+            <li>
+              Generate an auth key at
+              <a href="https://login.tailscale.com/admin/settings/keys">tailscale.com/admin → Settings → Keys</a>.
+            </li>
+            <li>
+              On the device, open the network menu →
+              <strong>Tailscale → Setup → Install / Update Binaries</strong>. This pulls the
+              current stable release from <code>pkgs.tailscale.com</code>, so the device
+              needs Wi-Fi. It can take a few minutes.
+            </li>
+            <li>
+              <strong>Tailscale → Setup → Set Auth Key</strong> and paste the key.
+            </li>
+            <li>
+              <strong>Tailscale → Start Service and Connect</strong>. The device should
+              appear in the Tailscale admin console; from there,
+              <code>ssh root@&lt;tailscale-ip&gt;</code> works.
+            </li>
+            <li>
+              Disable key expiry for the device in the admin console. Without it you have to
+              paste a fresh key every time the key expires.
+            </li>
+          </ol>
+          <p>
+            <strong>Tailscale → Disconnect and Stop Service</strong> is the reverse: it runs
+            <code>tailscale down</code>, stops the daemon and cleans up. Under
+            <strong>Advanced</strong> each of those steps is available on its own, plus
+            <strong>Connection Status</strong>, which just shows
+            <code>tailscale status</code>.
+          </p>
+          <p class="fine">
+            Switching the device to a different Tailscale account needs the saved node state
+            cleared first: rename <code>bin/tailscaled.state</code> before setting the new
+            key. Restarting the device does not clear it. Logs land next to it in
+            <code>bin/</code>.
           </p>
         </section>
 
         <section aria-labelledby="compatibility">
           <h2 id="compatibility">Compatibility</h2>
-          <p class="note">
-            Tested on a jailbroken Kindle Paperwhite 11th Generation (<code>armv7l</code>). Kobo and other KOReader devices may work when compatible kernel TUN support is available, but they are not the primary target of this repository.
+          <p>
+            Two hard requirements. The device kernel needs a working TUN device at
+            <code>/dev/net/tun</code> — there is no userspace-networking fallback. And the
+            plugin installs the 32-bit <code>arm</code> build, which is what KOReader on
+            Kindle runs on; a device with a 64-bit-only userland is not handled.
+          </p>
+          <p>
+            One SSH command answers the question for any device:
+            <code>ls -l /dev/net/tun</code>. If it is there, the plugin should work.
+          </p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Device</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Kindle Paperwhite 5 (11th gen, <code>armv7l</code>)</td>
+                  <td>Tested — this is the device it was built and used on</td>
+                </tr>
+                <tr>
+                  <td>Kindle Paperwhite 4 (10th gen), Oasis 2 &amp; 3, Kindle 10th/11th gen, Scribe</td>
+                  <td>Expected to work — same jailbreak era and kernel generation, but untested</td>
+                </tr>
+                <tr>
+                  <td>Older Kindles (Paperwhite 1–3, Voyage, Touch)</td>
+                  <td>Unverified — TUN support is not a given on these kernels, so check first</td>
+                </tr>
+                <tr>
+                  <td>Kobo and other KOReader devices</td>
+                  <td>May work with kernel TUN and a 32-bit userland, but not a target here</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="fine">
+            The Kindle must be jailbroken with KOReader installed. Keep the screen awake
+            while testing — Kindle drops Wi-Fi when it sleeps — and note that SSH tends not
+            to work while the device is plugged in over USB.
           </p>
         </section>
-      </div>
+
+        <section aria-labelledby="support">
+          <h2 id="support">Support</h2>
+          <p>
+            The plugin is free and always will be. If it saved you an afternoon, you can
+            <a href="https://buymeacoffee.com/timmykug">buy me a coffee</a>.
+          </p>
+        </section>
+      </main>
 
       <footer>
         <p>
-          Canonical project URL:
-          <a href="https://timothykugler.de/koreader-tailscale/">https://timothykugler.de/koreader-tailscale/</a>
+          Built on <a href="https://github.com/mitanshu7/tailscale_kual">mitanshu7's Tailscale KUAL extension</a>,
+          reworked into a self-contained KOReader plugin.
         </p>
       </footer>
-    </main>
+    </div>
   </body>
 </html>

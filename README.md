@@ -2,7 +2,7 @@
 
 Self-contained KOReader plugin that installs and runs Tailscale on a compatible e-reader for private tailnet access, SSH, and self-hosted reading workflows.
 
-Project page: https://timmykug.github.io/koreader-tailscale-plugin/
+Project page: https://timothykugler.de/koreader-tailscale/
 
 ## What This Project Does
 

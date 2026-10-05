@@ -52,77 +52,117 @@
       }
     </script>
 
+    <link rel="stylesheet" href="/fonts/fonts.css">
     <style>
+      /* The timothykugler.de palette and type, in both themes. The theme follows the
+         system until the visitor picks one with the header toggle (/nav.js), which
+         sets data-theme on <html>. */
       :root {
         color-scheme: light;
-        --bg: #f4efe6;
-        --paper: #fffdf9;
-        --text: #1d1b18;
-        --muted: #5f574c;
-        --accent: #7a3410;
-        --line: #e2d8c7;
-        --code-bg: #f3ece0;
+        --bg: #f6f4ef;
+        --surface: #ffffff;
+        --line: #e2ded4;
+        --ink: #14233a;
+        --ink-2: #4a5568;
+        --ink-3: #7a8291;
+        --accent: #1f3a63;
+        --accent-ink: #ffffff;
+        --code-bg: #ece8de;
+        --serif: "Fraunces", Georgia, "Times New Roman", serif;
+        --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --bg: #0e131a;
+          --surface: #161d27;
+          --line: #283242;
+          --ink: #e9edf3;
+          --ink-2: #a9b2c0;
+          --ink-3: #7d8797;
+          --accent: #93b6ea;
+          --accent-ink: #0e131a;
+          --code-bg: #1d2633;
+        }
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0e131a;
+        --surface: #161d27;
+        --line: #283242;
+        --ink: #e9edf3;
+        --ink-2: #a9b2c0;
+        --ink-3: #7d8797;
+        --accent: #93b6ea;
+        --accent-ink: #0e131a;
+        --code-bg: #1d2633;
       }
 
       * { box-sizing: border-box; }
 
       body {
         margin: 0;
-        padding: 0;
         background: var(--bg);
-        color: var(--text);
-        font: 18px/1.65 "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        color: var(--ink-2);
+        font: 400 17px/1.7 var(--sans);
         -webkit-font-smoothing: antialiased;
       }
 
       .sheet {
         max-width: 44rem;
         margin: 0 auto;
-        padding: 3.5rem 1.25rem 4rem;
+        padding: 4rem 1.5rem 4.5rem;
       }
 
-      header { margin-bottom: 3rem; }
+      header { margin-bottom: 3.5rem; }
 
       h1 {
-        margin: 0 0 0.9rem;
-        font-size: clamp(1.9rem, 5vw, 2.7rem);
-        line-height: 1.15;
-        letter-spacing: -0.01em;
+        margin: 0 0 1rem;
+        font: 500 clamp(2.1rem, 5vw, 3rem)/1.12 var(--serif);
+        letter-spacing: -0.02em;
+        color: var(--ink);
       }
 
       .lede {
-        margin: 0 0 1.4rem;
-        font-size: 1.12rem;
-        color: var(--muted);
+        margin: 0 0 1.75rem;
+        font-size: 1.15rem;
         max-width: 34rem;
       }
 
-      section { margin-bottom: 3rem; }
+      section { margin-bottom: 3.25rem; }
 
       h2 {
-        margin: 0 0 0.9rem;
-        font-size: 0.74rem;
-        font-weight: 700;
+        margin: 0 0 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: var(--accent);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--ink-3);
       }
+
+      strong { color: var(--ink); font-weight: 600; }
 
       p, li { max-width: 62ch; }
       p { margin: 0 0 1rem; }
 
       ul, ol { padding-left: 1.3rem; margin: 0 0 1rem; }
-      li { margin-bottom: 0.45rem; }
+      li { margin-bottom: 0.5rem; }
+      li::marker { color: var(--ink-3); }
 
       a { color: var(--accent); text-underline-offset: 2px; }
 
       code {
-        padding: 0.08em 0.35em;
+        padding: 0.1em 0.4em;
         background: var(--code-bg);
-        border-radius: 4px;
-        font: 0.86em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        border-radius: 5px;
+        color: var(--ink);
+        font: 0.84em/1.4 var(--mono);
       }
+
+      a code { color: inherit; }
 
       .links {
         display: flex;
@@ -137,66 +177,71 @@
 
       .btn {
         display: inline-block;
-        padding: 0.5rem 1rem;
-        background: var(--paper);
-        border: 1px solid var(--line);
+        padding: 0.7rem 1.25rem;
+        border: 1px solid var(--accent);
         border-radius: 999px;
         color: var(--accent);
+        font-size: 0.92rem;
+        font-weight: 500;
         text-decoration: none;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 0.9rem;
+        transition: background 0.15s ease, color 0.15s ease;
       }
 
-      .btn:hover { border-color: var(--accent); }
+      .btn:hover { background: var(--surface); }
 
-      .btn-primary {
-        background: var(--accent);
-        border-color: var(--accent);
-        color: #fffdf9;
+      .btn-primary { background: var(--accent); color: var(--accent-ink); }
+      .btn-primary:hover { background: var(--ink); border-color: var(--ink); }
+
+      .table-scroll {
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
       }
-
-      .table-scroll { overflow-x: auto; margin-bottom: 1rem; }
 
       table {
         border-collapse: collapse;
         width: 100%;
         min-width: 30rem;
-        font-size: 0.95rem;
+        font-size: 0.93rem;
       }
 
       th, td {
         text-align: left;
-        padding: 0.55rem 0.8rem 0.55rem 0;
+        padding: 0.75rem 1rem;
         border-bottom: 1px solid var(--line);
         vertical-align: top;
       }
 
+      tbody tr:last-child td { border-bottom: 0; }
+      td:first-child { color: var(--ink); }
+
       th {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 0.76rem;
-        letter-spacing: 0.06em;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--muted);
+        color: var(--ink-3);
         font-weight: 600;
       }
 
-      .fine { color: var(--muted); font-size: 0.95rem; }
+      .fine { color: var(--ink-3); font-size: 0.93rem; }
 
       footer {
         margin-top: 3.5rem;
         padding-top: 1.5rem;
         border-top: 1px solid var(--line);
-        color: var(--muted);
-        font-size: 0.9rem;
+        color: var(--ink-3);
+        font-size: 0.88rem;
       }
 
       @media (max-width: 30rem) {
-        body { font-size: 17px; }
-        .sheet { padding-top: 2.25rem; }
+        body { font-size: 16px; }
+        .sheet { padding: 2.5rem 1rem 3.5rem; }
       }
     </style>
-    <!-- Site header shared across timothykugler.de, pinned to this page's light theme. -->
-    <script src="/nav.js" data-theme="light" defer></script>
+    <!-- The timothykugler.de header; it also applies the visitor's saved theme. -->
+    <script src="/nav.js"></script>
   </head>
   <body>
     <div class="sheet">

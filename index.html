@@ -59,45 +59,45 @@
          sets data-theme on <html>. */
       :root {
         color-scheme: light;
-        --bg: #f6f4ef;
-        --surface: #ffffff;
-        --line: #e2ded4;
-        --ink: #14233a;
-        --ink-2: #4a5568;
-        --ink-3: #7a8291;
-        --accent: #1f3a63;
+        --bg: #f8f6f1;
+        --surface: #fffefb;
+        --line: #dcdde2;
+        --ink: #1a2a4a;
+        --ink-2: #48536a;
+        --ink-3: #5f6a7d;
+        --accent: #1a2a4a;
         --accent-ink: #ffffff;
-        --code-bg: #ece8de;
-        --serif: "Fraunces", Georgia, "Times New Roman", serif;
-        --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --code-bg: #eeebe3;
+        --serif: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --sans: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       }
 
       @media (prefers-color-scheme: dark) {
         :root:not([data-theme="light"]) {
           color-scheme: dark;
-          --bg: #0e131a;
-          --surface: #161d27;
-          --line: #283242;
-          --ink: #e9edf3;
-          --ink-2: #a9b2c0;
-          --ink-3: #7d8797;
-          --accent: #93b6ea;
-          --accent-ink: #0e131a;
+          --bg: #11161e;
+          --surface: #171e29;
+          --line: #2a3443;
+          --ink: #e8ecf2;
+          --ink-2: #b0b9c7;
+          --ink-3: #939dac;
+          --accent: #e8ecf2;
+          --accent-ink: #11161e;
           --code-bg: #1d2633;
         }
       }
 
       :root[data-theme="dark"] {
         color-scheme: dark;
-        --bg: #0e131a;
-        --surface: #161d27;
-        --line: #283242;
-        --ink: #e9edf3;
-        --ink-2: #a9b2c0;
-        --ink-3: #7d8797;
-        --accent: #93b6ea;
-        --accent-ink: #0e131a;
+        --bg: #11161e;
+        --surface: #171e29;
+        --line: #2a3443;
+        --ink: #e8ecf2;
+        --ink-2: #b0b9c7;
+        --ink-3: #939dac;
+        --accent: #e8ecf2;
+        --accent-ink: #11161e;
         --code-bg: #1d2633;
       }
 
@@ -124,7 +124,7 @@
 
       h1 {
         margin: 0 0 1rem;
-        font: 500 clamp(2.1rem, 5vw, 3rem)/1.12 var(--serif);
+        font: 400 clamp(2.1rem, 5vw, 3rem)/1.12 var(--serif);
         letter-spacing: -0.02em;
         color: var(--ink);
       }
@@ -399,6 +399,11 @@
         <p>
           Built on <a href="https://github.com/mitanshu7/tailscale_kual">mitanshu7's Tailscale KUAL extension</a>,
           reworked into a self-contained KOReader plugin.
+        </p>
+        <p>
+          <a href="/">Timothy Kugler</a> ·
+          <a href="/impressum/" lang="de">Impressum</a> ·
+          <a href="/datenschutz/" lang="de">Datenschutz</a>
         </p>
       </footer>
     </div>

@@ -103,6 +103,9 @@
 
       * { box-sizing: border-box; }
 
+      /* /nav.js moves these into the site header; this is how they sit without it. */
+      #project-links { display: flex; gap: 1.25rem; max-width: 44rem; margin: 0 auto; padding: 1rem 1.5rem 0; }
+
       body {
         margin: 0;
         background: var(--bg);
@@ -240,10 +243,16 @@
         .sheet { padding: 2.5rem 1rem 3.5rem; }
       }
     </style>
-    <!-- The timothykugler.de header; it also applies the visitor's saved theme. -->
-    <script src="/nav.js"></script>
+    <!-- The timothykugler.de header, with this project's name and links in it. It also
+         applies the visitor's saved theme. -->
+    <script src="/nav.js" data-title="KOReader Tailscale" data-links="#project-links"></script>
   </head>
   <body>
+    <!-- This project's own links. /nav.js moves them into the site header. -->
+    <nav id="project-links" aria-label="KOReader Tailscale">
+      <a href="https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip">Download</a>
+      <a href="https://github.com/TimmyKug/koreader-tailscale">GitHub</a>
+    </nav>
     <div class="sheet">
       <header>
         <h1>KOReader Tailscale Plugin</h1>

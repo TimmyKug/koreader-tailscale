@@ -43,6 +43,11 @@ function Tailscale:init()
     self.tailscaled_bin = self.paths.tailscaled_bin
     self.auth_key_file = self.paths.auth_key_file
 
+    -- bin/ holds no tracked files, so a fresh copy may not have it yet.
+    if lfs.attributes(self.bin_dir, "mode") ~= "directory" then
+        lfs.mkdir(self.bin_dir)
+    end
+
     self.ui.menu:registerToMainMenu(self)
 end
 

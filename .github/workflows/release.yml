@@ -1,0 +1,65 @@
+name: Release
+
+# Publishes tailscale.koplugin.zip as a GitHub release.
+# Either push a tag (git tag v1.0.0 && git push origin v1.0.0), or run this
+# workflow from the Actions tab and enter a version.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 1.0.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ver="${{ inputs.version }}"
+          else
+            ver="${GITHUB_REF_NAME}"
+          fi
+          ver="${ver#v}"
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          echo "tag=v$ver" >> "$GITHUB_OUTPUT"
+
+      - name: Stamp version into _meta.lua
+        run: |
+          sed -i -E 's/^(\s*version\s*=\s*)"[^"]*"/\1"${{ steps.v.outputs.version }}"/' \
+            tailscale.koplugin/_meta.lua
+          grep -q '"${{ steps.v.outputs.version }}"' tailscale.koplugin/_meta.lua
+
+      - name: Build zip
+        run: |
+          mkdir -p tailscale.koplugin/bin
+          zip -r tailscale.koplugin.zip tailscale.koplugin \
+            -x 'tailscale.koplugin/bin/*' -x '*.DS_Store'
+          # Keep an empty bin/ so the layout matches what the plugin expects.
+          zip tailscale.koplugin.zip tailscale.koplugin/bin/
+          unzip -l tailscale.koplugin.zip
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.v.outputs.tag }}"
+          notes="Unzip into KOReader's \`plugins/\` directory (on Kindle: \`/mnt/us/koreader/plugins/\`), restart KOReader, then follow the setup steps in the README."
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" tailscale.koplugin.zip --clobber
+          else
+            gh release create "$tag" tailscale.koplugin.zip \
+              --target "${{ github.sha }}" \
+              --title "$tag" \
+              --notes "$notes" \
+              --generate-notes
+          fi

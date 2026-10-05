@@ -124,3 +124,7 @@ The plugin is free and always will be. If it saved you an afternoon, you can
 
 Based on [mitanshu7's Tailscale KUAL extension](https://github.com/mitanshu7/tailscale_kual),
 reworked into a self-contained KOReader plugin.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The original KUAL extension is also MIT.

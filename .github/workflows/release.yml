@@ -42,6 +42,7 @@ jobs:
       - name: Build zip
         run: |
           mkdir -p tailscale.koplugin/bin
+          cp LICENSE tailscale.koplugin/LICENSE
           zip -r tailscale.koplugin.zip tailscale.koplugin \
             -x 'tailscale.koplugin/bin/*' -x '*.DS_Store'
           # Keep an empty bin/ so the layout matches what the plugin expects.

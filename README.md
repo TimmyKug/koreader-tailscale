@@ -3,7 +3,9 @@
 A minimalistic Tailscale plugin for KOReader. Install it, paste an auth key, and your
 e-reader joins your tailnet.
 
-Project page: <https://timothykugler.de/koreader-tailscale/>
+**[⬇ Download the latest release](https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip)**
+· [Project page](https://timothykugler.de/koreader-tailscale/)
+· [Releases](https://github.com/TimmyKug/koreader-tailscale/releases)
 
 ## What it is
 
@@ -27,8 +29,10 @@ or an SSH server — those live elsewhere on your tailnet.
 
 ## How to set it up
 
-1. Copy the `tailscale.koplugin/` folder into KOReader's `plugins/` directory. On Kindle
-   that is usually `/mnt/us/koreader/plugins/`.
+1. Download [`tailscale.koplugin.zip`](https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip)
+   from the latest release and unzip it into KOReader's `plugins/` directory, so you end
+   up with `plugins/tailscale.koplugin/`. On Kindle that is usually
+   `/mnt/us/koreader/plugins/`. (Cloning the repo and copying the folder works too.)
 2. Restart KOReader so the plugin is picked up.
 3. Generate an auth key at
    [tailscale.com/admin → Settings → Keys](https://login.tailscale.com/admin/settings/keys).
@@ -103,6 +107,13 @@ account needs a reset:
 - If the download fails, check Wi-Fi and retry from KOReader.
 - The connect commands have bounded timeouts, so a dead network, stale identity or
   rejected key returns an error instead of leaving KOReader stuck on "connecting".
+
+## Releases
+
+Releases are built by GitHub Actions (`.github/workflows/release.yml`). To cut one, push a
+tag such as `v1.0.0`, or run the **Release** workflow from the Actions tab and enter a
+version. The workflow stamps the version into `_meta.lua`, zips `tailscale.koplugin/`
+and attaches it to the release.
 
 ## Support
 

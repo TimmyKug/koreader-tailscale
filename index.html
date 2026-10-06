@@ -114,6 +114,28 @@
         -webkit-font-smoothing: antialiased;
       }
 
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        margin: 0 0 1rem;
+      }
+      .shots figure { margin: 0; }
+      .shots img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .shots figcaption { margin-top: 0.4rem; font-size: 0.85rem; color: var(--ink-3); }
+      .shots .wide { grid-column: 1 / -1; }
+      .shots .wide img { max-width: 24rem; }
+      @media (max-width: 30rem) {
+        .shots { grid-template-columns: minmax(0, 1fr); }
+      }
+
       .sheet {
         max-width: 44rem;
         margin: 0 auto;
@@ -289,6 +311,27 @@
             anything publicly. The plugin provides the network path only — it does not
             bundle an OPDS server, Syncthing or an SSH server.
           </p>
+        </section>
+
+        <section aria-labelledby="screens">
+          <h2 id="screens">What it looks like</h2>
+          <div class="shots">
+            <figure>
+              <img src="docs/screenshots/network-menu.png" width="1236" height="1167" loading="lazy"
+                   alt="KOReader network settings menu on a Kindle, with a Tailscale entry at the bottom">
+              <figcaption>Settings → Network, where the plugin lives</figcaption>
+            </figure>
+            <figure>
+              <img src="docs/screenshots/tailscale-menu.png" width="1236" height="637" loading="lazy"
+                   alt="Tailscale menu: Start Service and Connect, Disconnect and Stop Service, Setup, Advanced">
+              <figcaption>The Tailscale menu</figcaption>
+            </figure>
+            <figure class="wide">
+              <img src="docs/screenshots/connected.png" width="1022" height="177" loading="lazy"
+                   alt="KOReader message: Connected to Tailscale!">
+              <figcaption>After Start Service and Connect</figcaption>
+            </figure>
+          </div>
         </section>
 
         <section aria-labelledby="setup">

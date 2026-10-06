@@ -7,6 +7,11 @@ e-reader joins your tailnet.
 · [Project page](https://timothykugler.de/koreader-tailscale/)
 · [Releases](https://github.com/TimmyKug/koreader-tailscale/releases)
 
+<p>
+  <img src="docs/screenshots/network-menu.png" width="49%" alt="KOReader network settings menu with a Tailscale entry">
+  <img src="docs/screenshots/tailscale-menu.png" width="49%" alt="Tailscale menu: Start Service and Connect, Disconnect and Stop Service, Setup, Advanced">
+</p>
+
 ## What it is
 
 One KOReader plugin, one menu. It downloads the official Tailscale ARM binaries onto the
@@ -59,6 +64,11 @@ daemon and cleans up.
 | Advanced → Start / Stop Service | daemon only |
 | Advanced → Connect / Disconnect | client only |
 | Advanced → Connection Status | shows `tailscale status` |
+
+<p>
+  <img src="docs/screenshots/setup-menu.png" width="49%" alt="Setup submenu: Set Auth Key, Install / Update Binaries">
+  <img src="docs/screenshots/advanced-menu.png" width="49%" alt="Advanced submenu: Start Service, Stop Service, Connect to Tailnet, Disconnect from Tailnet, Connection Status">
+</p>
 
 **Install / Update Binaries** checks the latest stable ARM package, skips the work if the
 installed version is already current, and backs up existing binaries as `*.bak` before

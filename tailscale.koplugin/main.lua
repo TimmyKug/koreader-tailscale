@@ -16,6 +16,7 @@ local lfs           = require("libs/libkoreader-lfs")
 local _             = require("gettext")
 
 local SOCKET_PATH = "/var/run/tailscale/tailscaled.sock"
+local TUN_PATH    = "/dev/net/tun"
 
 local Tailscale = WidgetContainer:extend{
     name        = "tailscale",
@@ -119,6 +120,25 @@ function Tailscale:isRunning(name)
     return ret == true or ret == 0
 end
 
+-- tailscaled runs in kernel-TUN mode only, so a kernel without TUN can never
+-- work. Some kernels build TUN as a module, so try loading it before giving up.
+function Tailscale:hasTun()
+    if lfs.attributes(TUN_PATH, "mode") == "char device" then
+        return true
+    end
+    os.execute("modprobe tun >/dev/null 2>&1")
+    return lfs.attributes(TUN_PATH, "mode") == "char device"
+end
+
+-- Show why nothing will work and return false when TUN is missing.
+function Tailscale:requireTun()
+    if self:hasTun() then
+        return true
+    end
+    self:showInfo(_("This device has no /dev/net/tun.\nIts kernel lacks TUN support, so Tailscale cannot run here."), 8)
+    return false
+end
+
 function Tailscale:isSocketReady()
     return lfs.attributes(SOCKET_PATH, "mode") == "socket"
 end
@@ -159,6 +179,7 @@ end
 -- ---------------------------------------------------------------------------
 
 function Tailscale:startTailscaled()
+    if not self:requireTun() then return end
     self:withSpinner(_("Starting tailscaled…"), function()
         if self:ensureTailscaledRunning(true) then
             self:showInfo(_("tailscaled started (kernel TUN).\nNow tap \"Connect to Tailnet\" to join your network."), 5)
@@ -231,6 +252,7 @@ function Tailscale:disconnectTailscaleInternal()
 end
 
 function Tailscale:startTailscale()
+    if not self:requireTun() then return end
     self:withSpinner(_("Starting tailscaled and connecting…"), function()
         if not self:ensureTailscaledRunning(false) then
             self:showInfo(_("tailscaled failed to start in kernel TUN mode.\nSee tailscaled_tun.log in the plugin's bin/ directory."), 5)
@@ -292,6 +314,8 @@ end
 -- ---------------------------------------------------------------------------
 
 function Tailscale:updateBinaries()
+    -- No point downloading binaries that can never start.
+    if not self:requireTun() then return end
     self:withSpinner(_("Checking for latest Tailscale version…"), function()
         -- Ensure the bin directory exists.
         os.execute('mkdir -p "' .. self.bin_dir .. '"')

@@ -93,10 +93,15 @@ there, the plugin should work.
 |---|---|
 | Kindle Paperwhite 5 (11th gen, `armv7l`) | **Tested** — this is the device it was built and used on |
 | Kindle Paperwhite 4 (10th gen), Oasis 2 & 3, Kindle 10th/11th gen, Scribe | Expected to work — same jailbreak era and kernel generation, but untested |
+| Kindle Paperwhite 6, Colorsoft, Kindle 2024 (12th gen), Scribe 2024 | Likely to work, but untested — and only if its firmware can be jailbroken |
 | Older Kindles (Paperwhite 1–3, Voyage, Touch) | Unverified — TUN support is not a given on these kernels, so check first |
 | Kobo and other KOReader devices | May work with kernel TUN and a 32-bit userland, but not a target here |
 
 The Kindle must be jailbroken with KOReader installed.
+
+**Tried it on anything other than a Paperwhite 5?** Please
+[report your device](https://github.com/TimmyKug/koreader-tailscale/issues/new?title=Device%20report%3A%20&body=%2A%2ADevice%3A%2A%2A%20%28e.g.%20Kindle%20Paperwhite%2012th%20gen%29%0A%2A%2AFirmware%20version%3A%2A%2A%0A%2A%2AKOReader%20version%3A%2A%2A%0A%2A%2APlugin%20version%3A%2A%2A%0A%2A%2AOutput%20of%20%60uname%20-m%60%3A%2A%2A%0A%2A%2AOutput%20of%20%60ls%20-l%20/dev/net/tun%60%3A%2A%2A%0A%0A%2A%2ADoes%20it%20work%3F%2A%2A%20yes%20/%20no%20%E2%80%94%20and%20if%20not%2C%20what%20happened%3A%0A) — whether it works or not. Each report turns an "expected"
+row in this table into a tested one.
 
 ## Switching accounts
 
@@ -118,6 +123,8 @@ account needs a reset:
 - Keep the screen awake while testing — Kindle drops Wi-Fi when it sleeps.
 - SSH tends not to work while the device is plugged in over USB.
 - If the download fails, check Wi-Fi and retry from KOReader.
+- "This device has no /dev/net/tun" means the kernel lacks TUN support. The plugin checks
+  (and tries `modprobe tun`) before installing or starting, since it cannot work without it.
 - The connect commands have bounded timeouts, so a dead network, stale identity or
   rejected key returns an error instead of leaving KOReader stuck on "connecting".
 

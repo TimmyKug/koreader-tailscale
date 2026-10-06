@@ -178,6 +178,15 @@
 
       .after { margin-top: 1.25rem; }
 
+      .report {
+        padding: 1rem 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 8px;
+        max-width: none;
+      }
+
       @media (max-width: 40rem) {
         .walk > li:has(.kindle) { grid-template-columns: 2.5rem minmax(0, 1fr); }
         .walk .kindle { grid-column: 2; width: min(13rem, 80%); margin-top: 1rem; }
@@ -487,6 +496,10 @@
                   <td>Expected to work — same jailbreak era and kernel generation, but untested</td>
                 </tr>
                 <tr>
+                  <td>Kindle Paperwhite 6, Colorsoft, Kindle 2024 (12th gen), Scribe 2024</td>
+                  <td>Likely to work, but untested — and only if its firmware can be jailbroken</td>
+                </tr>
+                <tr>
                   <td>Older Kindles (Paperwhite 1–3, Voyage, Touch)</td>
                   <td>Unverified — TUN support is not a given on these kernels, so check first</td>
                 </tr>
@@ -501,6 +514,11 @@
             The Kindle must be jailbroken with KOReader installed. Keep the screen awake
             while testing — Kindle drops Wi-Fi when it sleeps — and note that SSH tends not
             to work while the device is plugged in over USB.
+          </p>
+          <p class="report">
+            <strong>Tried it on anything other than a Paperwhite 5?</strong>
+            Please <a href="https://github.com/TimmyKug/koreader-tailscale/issues/new?title=Device%20report%3A%20&amp;body=%2A%2ADevice%3A%2A%2A%20%28e.g.%20Kindle%20Paperwhite%2012th%20gen%29%0A%2A%2AFirmware%20version%3A%2A%2A%0A%2A%2AKOReader%20version%3A%2A%2A%0A%2A%2APlugin%20version%3A%2A%2A%0A%2A%2AOutput%20of%20%60uname%20-m%60%3A%2A%2A%0A%2A%2AOutput%20of%20%60ls%20-l%20/dev/net/tun%60%3A%2A%2A%0A%0A%2A%2ADoes%20it%20work%3F%2A%2A%20yes%20/%20no%20%E2%80%94%20and%20if%20not%2C%20what%20happened%3A%0A">report your device</a>, whether it works or not.
+            Each report turns an “expected” row into a tested one.
           </p>
         </section>
 

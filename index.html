@@ -114,45 +114,97 @@
         -webkit-font-smoothing: antialiased;
       }
 
-      .shots {
+      /* Setup as numbered steps; a step with a screen shows it beside the text. */
+      .walk { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+
+      .walk > li {
+        counter-increment: step;
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-        margin: 0 0 1rem;
+        grid-template-columns: 2.5rem minmax(0, 1fr);
+        gap: 0 1.75rem;
+        align-items: start;
+        max-width: none;
+        margin: 0;
+        padding: 1.75rem 0;
+        border-top: 1px solid var(--line);
       }
-      .shots figure { margin: 0; }
-      .shots img {
-        display: block;
-        width: 100%;
-        height: auto;
+
+      .walk > li:last-child { border-bottom: 1px solid var(--line); }
+      .walk > li:has(.kindle) { grid-template-columns: 2.5rem minmax(0, 1fr) 15rem; }
+
+      .walk > li::before {
+        content: counter(step);
+        display: grid;
+        place-items: center;
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 50%;
+        background: var(--accent);
+        color: var(--accent-ink);
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .walk h3 { margin: 0.2rem 0 0.4rem; color: var(--ink); font-size: 1.15rem; font-weight: 600; }
+      .walk p { margin: 0; }
+
+      /* A Kindle drawn in CSS: bezel plus a 3:4 e-ink screen. The screenshots are
+         crops, so menus are pinned to the top of the screen and dialogs to the
+         middle, over a neutral placeholder library rather than anyone's books. */
+      .kindle {
+        padding: 6% 6% 11%;
+        background: #23262b;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
+        border-radius: 9% / 6.5%;
+        box-shadow: 0 1.5rem 3rem -1.5rem rgba(17, 22, 30, 0.45);
       }
-      .shots figcaption { margin-top: 0.4rem; font-size: 0.85rem; color: var(--ink-3); }
-      .shots .wide { grid-column: 1 / -1; }
-      .shots .wide img { max-width: 24rem; }
-      .step-shot {
-        display: block;
-        width: 100%;
-        max-width: 22rem;
-        height: auto;
-        margin: 0.75rem 0 0.25rem;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
+
+      .screen {
+        position: relative;
+        aspect-ratio: 3 / 4;
+        overflow: hidden;
+        background: #fff url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'><rect x='110' y='10' width='80' height='10' rx='2' fill='%23d9d9d9'/><rect x='20' y='36' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='112' y='36' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='204' y='36' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='20' y='152' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='112' y='152' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='204' y='152' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='20' y='268' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='112' y='268' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='204' y='268' width='76' height='100' fill='%23ececec' stroke='%23c9c9c9' stroke-width='1.5'/><rect x='120' y='382' width='60' height='7' rx='2' fill='%23d9d9d9'/></svg>") center / 100% 100% no-repeat;
+        border-radius: 2px;
       }
-      @media (max-width: 30rem) {
-        .shots { grid-template-columns: minmax(0, 1fr); }
+
+      .screen img { position: absolute; display: block; height: auto; }
+      .screen .at-top { top: 0; left: 0; width: 100%; }
+      .screen .at-center { top: 52%; left: 50%; width: 88%; transform: translate(-50%, -50%); }
+      .screen .low { top: 66%; }
+
+      /* The dialog crops carry a white margin; clip it so they sit on the library. */
+      .screen .dialog { clip-path: inset(3.98% 3.02% round 1.4%); }
+      .screen .toast { clip-path: inset(18.1% 3.13% round 1.4%); }
+
+      .after { margin-top: 1.25rem; }
+
+      @media (max-width: 40rem) {
+        .walk > li:has(.kindle) { grid-template-columns: 2.5rem minmax(0, 1fr); }
+        .walk .kindle { grid-column: 2; width: min(13rem, 80%); margin-top: 1rem; }
+      }
+
+      /* On phones each table row becomes a small stacked block. */
+      @media (max-width: 34rem) {
+        .table-scroll { overflow: visible; }
+        .table-scroll table, .table-scroll tbody, .table-scroll tr, .table-scroll td { display: block; min-width: 0; }
+        thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+        .table-scroll tr { padding: 0.75rem 1rem; border-bottom: 1px solid var(--line); }
+        .table-scroll tbody tr:last-child { border-bottom: 0; }
+        .table-scroll td { padding: 0; border: 0; }
+        .table-scroll td + td { margin-top: 0.25rem; color: var(--ink-3); }
       }
 
       .sheet {
-        max-width: 44rem;
+        max-width: 56rem;
         margin: 0 auto;
         padding: 4rem 1.5rem 4.5rem;
       }
 
-      header { margin-bottom: 3.5rem; }
+      header { margin-bottom: 4rem; text-align: center; }
+      header .lede { margin-left: auto; margin-right: auto; }
+      header .links { justify-content: center; }
+
+      .intro { max-width: 40rem; margin: 0 auto 3.25rem; }
 
       h1 {
         margin: 0 0 1rem;
@@ -300,97 +352,108 @@
       </header>
 
       <main>
-        <section aria-labelledby="what">
+        <section aria-labelledby="what" class="intro">
           <h2 id="what">What it is</h2>
           <p>
-            One KOReader plugin, one menu. It downloads the official Tailscale ARM
-            binaries onto the device, stores the auth key, runs <code>tailscaled</code> in
-            kernel-TUN mode, and brings the device up on your tailnet with
-            <code>tailscale up --ssh</code>.
+            One KOReader plugin, one menu. It fetches the official Tailscale ARM binaries,
+            runs <code>tailscaled</code> in kernel-TUN mode and brings the reader up on your
+            tailnet with SSH on.
           </p>
-          <p>
-            Everything lives inside the plugin folder — binaries, node state and logs all
-            sit in <code>tailscale.koplugin/bin/</code>. There is no KUAL extension to
-            install, no userspace proxy mode, and nothing scattered across the rest of the
-            device. Deleting the folder removes the whole thing.
-          </p>
-          <p>
-            That buys you the usual things a tailnet is good for from an e-reader: SSH into
-            a jailbroken Kindle from anywhere, reach a private OPDS catalogue or home
-            library server, and keep the reader on a private network rather than exposing
-            anything publicly. The plugin provides the network path only — it does not
-            bundle an OPDS server, Syncthing or an SSH server.
-          </p>
-        </section>
-
-        <section aria-labelledby="screens">
-          <h2 id="screens">What it looks like</h2>
-          <div class="shots">
-            <figure>
-              <img src="docs/screenshots/network-menu.png" width="1236" height="1167" loading="lazy"
-                   alt="KOReader network settings menu on a Kindle, with a Tailscale entry at the bottom">
-              <figcaption>Settings → Network, where the plugin lives</figcaption>
-            </figure>
-            <figure>
-              <img src="docs/screenshots/tailscale-menu.png" width="1236" height="637" loading="lazy"
-                   alt="Tailscale menu: Start Service and Connect, Disconnect and Stop Service, Setup, Advanced">
-              <figcaption>The Tailscale menu</figcaption>
-            </figure>
-            <figure class="wide">
-              <img src="docs/screenshots/connected.png" width="1022" height="177" loading="lazy"
-                   alt="KOReader message: Connected to Tailscale!">
-              <figcaption>After Start Service and Connect</figcaption>
-            </figure>
-          </div>
+          <ul>
+            <li>
+              <strong>Self-contained.</strong> Binaries, node state and logs all live in
+              <code>tailscale.koplugin/bin/</code>. No KUAL. Delete the folder and it is gone.
+            </li>
+            <li>
+              <strong>Kernel TUN, SSH on.</strong> Runs the official <code>tailscaled</code>
+              in kernel-TUN mode and comes up with <code>tailscale up --ssh</code>.
+            </li>
+            <li>
+              <strong>Network path only.</strong> SSH in from anywhere, reach a private OPDS
+              or library server. No servers bundled.
+            </li>
+          </ul>
         </section>
 
         <section aria-labelledby="setup">
           <h2 id="setup">How to set it up</h2>
-          <ol>
+          <ol class="walk">
             <li>
-              Download
-              <a href="https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip"><code>tailscale.koplugin.zip</code></a>
-              from the latest release and unzip it into KOReader's <code>plugins/</code>
-              directory. On Kindle that is usually <code>/mnt/us/koreader/plugins/</code>.
-            </li>
-            <li>Restart KOReader so the plugin is picked up.</li>
-            <li>
-              Generate an auth key at
-              <a href="https://login.tailscale.com/admin/settings/keys">tailscale.com/admin → Settings → Keys</a>.
-            </li>
-            <li>
-              On the device, open the network menu →
-              <strong>Tailscale → Setup → Install / Update Binaries</strong>. This pulls the
-              current stable release from <code>pkgs.tailscale.com</code>, so the device
-              needs Wi-Fi. It can take a few minutes.
+              <div>
+                <h3>Download the plugin</h3>
+                <p>
+                  Get <a href="https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip"><code>tailscale.koplugin.zip</code></a> and unzip it into
+                  KOReader's <code>plugins/</code> folder — on Kindle usually
+                  <code>/mnt/us/koreader/plugins/</code>. Restart KOReader.
+                </p>
+              </div>
             </li>
             <li>
-              <strong>Tailscale → Setup → Set Auth Key</strong> and paste the key.
-              <img class="step-shot" src="docs/screenshots/auth-key-dialog.png" width="1060" height="805" loading="lazy"
-                   alt="Set Tailscale Auth Key dialog with the key field and Save button">
+              <div>
+                <h3>Create an auth key</h3>
+                <p>
+                  At <a href="https://login.tailscale.com/admin/settings/keys">tailscale.com/admin → Settings → Keys</a>.
+                  A one-off key is fine.
+                </p>
+              </div>
             </li>
             <li>
-              <strong>Tailscale → Start Service and Connect</strong>. The device should
-              appear in the Tailscale admin console; from there,
-              <code>ssh root@&lt;tailscale-ip&gt;</code> works.
+              <div>
+                <h3>Install the binaries</h3>
+                <p>
+                  <strong>Settings → Network → Tailscale → Setup → Install / Update
+                  Binaries</strong>. Pulls the current stable release from
+                  <code>pkgs.tailscale.com</code> over Wi-Fi; takes a few minutes.
+                </p>
+              </div>
+              <div class="kindle">
+                <div class="screen">
+                  <img class="at-top" src="docs/screenshots/setup-menu.png" width="1236" height="425" loading="lazy"
+                       alt="Setup menu: Set Auth Key, Install / Update Binaries">
+                </div>
+              </div>
             </li>
             <li>
-              Disable key expiry for the device in the admin console. Without it you have to
-              paste a fresh key every time the key expires.
+              <div>
+                <h3>Paste the key</h3>
+                <p><strong>Setup → Set Auth Key</strong>, paste, save.</p>
+              </div>
+              <div class="kindle">
+                <div class="screen">
+                  <img class="at-center dialog" src="docs/screenshots/auth-key-dialog.png" width="1060" height="805" loading="lazy"
+                       alt="Set Tailscale Auth Key dialog with the key field and Save button">
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3>Connect</h3>
+                <p>
+                  <strong>Start Service and Connect</strong>. The Kindle shows up in your admin
+                  console, and <code>ssh root@&lt;tailscale-ip&gt;</code> works.
+                </p>
+              </div>
+              <div class="kindle">
+                <div class="screen">
+                  <img class="at-top" src="docs/screenshots/tailscale-menu.png" width="1236" height="637" loading="lazy"
+                       alt="Tailscale menu: Start Service and Connect, Disconnect and Stop Service, Setup, Advanced">
+                  <img class="at-center low toast" src="docs/screenshots/connected.png" width="1022" height="177" loading="lazy"
+                       alt="Message: Connected to Tailscale!">
+                </div>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3>Turn off key expiry</h3>
+                <p>For the device in the admin console, so you never have to paste a key again.</p>
+              </div>
             </li>
           </ol>
-          <p>
-            <strong>Tailscale → Disconnect and Stop Service</strong> is the reverse: it runs
-            <code>tailscale down</code>, stops the daemon and cleans up. Under
-            <strong>Advanced</strong> each of those steps is available on its own, plus
-            <strong>Connection Status</strong>, which just shows
-            <code>tailscale status</code>.
-          </p>
-          <p class="fine">
-            Switching the device to a different Tailscale account needs the saved node state
-            cleared first: rename <code>bin/tailscaled.state</code> before setting the new
-            key. Restarting the device does not clear it. Logs land next to it in
-            <code>bin/</code>.
+          <p class="fine after">
+            <strong>Disconnect and Stop Service</strong> reverses it. <strong>Advanced</strong> has
+            each step on its own plus <strong>Connection Status</strong>. Switching accounts?
+            Rename <code>bin/tailscaled.state</code> before setting the new key — restarting
+            does not clear it. Logs land next to it in <code>bin/</code>.
           </p>
         </section>
 

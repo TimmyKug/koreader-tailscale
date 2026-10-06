@@ -45,6 +45,9 @@ or an SSH server — those live elsewhere on your tailnet.
    Binaries**. This pulls the current stable release from `pkgs.tailscale.com`, so the
    device needs Wi-Fi. It can take a few minutes.
 5. **Tailscale → Setup → Set Auth Key** and paste the key.
+
+   <img src="docs/screenshots/auth-key-dialog.png" width="400" alt="Set Tailscale Auth Key dialog with the key field and Save button">
+
 6. **Tailscale → Start Service and Connect**. The device should appear in the Tailscale
    admin console; from there `ssh root@<tailscale-ip>` works.
 7. Disable key expiry for the device in the admin console. Without it you have to paste a

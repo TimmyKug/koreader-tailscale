@@ -112,6 +112,9 @@ account needs a reset:
 
 ## Troubleshooting
 
+- Can't scan the QR code? Type the link shown under it into any browser, or save an auth
+  key under **Setup → Set Auth Key** (or as `tailscale.koplugin/bin/auth.key` over USB);
+  with a key saved, the plugin logs in with it instead of showing a QR code.
 - Logs are written to `tailscale.koplugin/bin/`. `tailscale_start.log` has the connection
   errors, `tailscaled_tun.log` the daemon ones.
 - Keep the screen awake while testing — Kindle drops Wi-Fi when it sleeps.

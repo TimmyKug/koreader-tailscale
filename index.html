@@ -172,8 +172,7 @@
       .screen .at-center { top: 52%; left: 50%; width: 88%; transform: translate(-50%, -50%); }
       .screen .low { top: 66%; }
 
-      /* The dialog crops carry a white margin; clip it so they sit on the library. */
-      .screen .dialog { clip-path: inset(3.98% 3.02% round 1.4%); }
+      /* The toast crop carries a white margin; clip it so it sits on the library. */
       .screen .toast { clip-path: inset(18.1% 3.13% round 1.4%); }
 
       .after { margin-top: 1.25rem; }
@@ -350,8 +349,8 @@
       <header>
         <h1>KOReader Tailscale Plugin</h1>
         <p class="lede">
-          A minimalistic Tailscale plugin for KOReader. Install it, paste an auth key,
-          and your e-reader joins your tailnet.
+          A minimalistic Tailscale plugin for KOReader. Install it, scan a QR code with
+          your phone, and your e-reader joins your tailnet.
         </p>
         <ul class="links">
           <li><a class="btn btn-primary" href="https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip">⬇ Download plugin</a></li>
@@ -399,15 +398,6 @@
             </li>
             <li>
               <div>
-                <h3>Create an auth key</h3>
-                <p>
-                  At <a href="https://login.tailscale.com/admin/settings/keys">tailscale.com/admin → Settings → Keys</a>.
-                  A one-off key is fine.
-                </p>
-              </div>
-            </li>
-            <li>
-              <div>
                 <h3>Install the binaries</h3>
                 <p>
                   <strong>Settings → Network → Tailscale → Setup → Install / Update
@@ -424,22 +414,12 @@
             </li>
             <li>
               <div>
-                <h3>Paste the key</h3>
-                <p><strong>Setup → Set Auth Key</strong>, paste, save.</p>
-              </div>
-              <div class="kindle">
-                <div class="screen">
-                  <img class="at-center dialog" src="docs/screenshots/auth-key-dialog.png" width="1060" height="805" loading="lazy"
-                       alt="Set Tailscale Auth Key dialog with the key field and Save button">
-                </div>
-              </div>
-            </li>
-            <li>
-              <div>
                 <h3>Connect</h3>
                 <p>
-                  <strong>Start Service and Connect</strong>. The Kindle shows up in your admin
-                  console, and <code>ssh root@&lt;tailscale-ip&gt;</code> works.
+                  <strong>Start Service and Connect</strong>. The first time, a QR code appears:
+                  scan it with your phone, log in to Tailscale and approve the device. It closes
+                  by itself once the Kindle is on your tailnet, and
+                  <code>ssh root@&lt;tailscale-ip&gt;</code> works.
                 </p>
               </div>
               <div class="kindle">
@@ -454,14 +434,14 @@
             <li>
               <div>
                 <h3>Turn off key expiry</h3>
-                <p>For the device in the admin console, so you never have to paste a key again.</p>
+                <p>For the device in the admin console. Otherwise it logs out after a few months and you scan a new QR code.</p>
               </div>
             </li>
           </ol>
           <p class="fine after">
             <strong>Disconnect and Stop Service</strong> reverses it. <strong>Advanced</strong> has
             each step on its own plus <strong>Connection Status</strong>. Switching accounts?
-            Rename <code>bin/tailscaled.state</code> before setting the new key — restarting
+            Rename <code>bin/tailscaled.state</code> and connect again — restarting
             does not clear it. Logs land next to it in <code>bin/</code>.
           </p>
         </section>

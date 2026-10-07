@@ -1,7 +1,7 @@
 # KOReader Tailscale Plugin
 
-A minimalistic Tailscale plugin for KOReader. Install it, paste an auth key, and your
-e-reader joins your tailnet.
+A minimalistic Tailscale plugin for KOReader. Install it, scan a QR code with your phone,
+and your e-reader joins your tailnet.
 
 **[⬇ Download the latest release](https://github.com/TimmyKug/koreader-tailscale/releases/latest/download/tailscale.koplugin.zip)**
 · [Project page](https://timothykugler.de/koreader-tailscale/)
@@ -15,8 +15,8 @@ e-reader joins your tailnet.
 ## What it is
 
 One KOReader plugin, one menu. It downloads the official Tailscale ARM binaries onto the
-device, stores the auth key, runs `tailscaled` in kernel-TUN mode, and brings the device
-up on your tailnet with `tailscale up --ssh`.
+device, runs `tailscaled` in kernel-TUN mode, and brings the device up on your tailnet
+with `tailscale up --ssh`. The first time, it shows a QR code you scan to log in.
 
 Everything lives inside the plugin folder — binaries, node state and logs all sit in
 `tailscale.koplugin/bin/`. There is no KUAL extension to install, no userspace proxy
@@ -39,19 +39,14 @@ or an SSH server — those live elsewhere on your tailnet.
    up with `plugins/tailscale.koplugin/`. On Kindle that is usually
    `/mnt/us/koreader/plugins/`. (Cloning the repo and copying the folder works too.)
 2. Restart KOReader so the plugin is picked up.
-3. Generate an auth key at
-   [tailscale.com/admin → Settings → Keys](https://login.tailscale.com/admin/settings/keys).
-4. On the device, open the network menu → **Tailscale → Setup → Install / Update
+3. On the device, open the network menu → **Tailscale → Setup → Install / Update
    Binaries**. This pulls the current stable release from `pkgs.tailscale.com`, so the
    device needs Wi-Fi. It can take a few minutes.
-5. **Tailscale → Setup → Set Auth Key** and paste the key.
-
-   <img src="docs/screenshots/auth-key-dialog.png" width="400" alt="Set Tailscale Auth Key dialog with the key field and Save button">
-
-6. **Tailscale → Start Service and Connect**. The device should appear in the Tailscale
-   admin console; from there `ssh root@<tailscale-ip>` works.
-7. Disable key expiry for the device in the admin console. Without it you have to paste a
-   fresh key every time the key expires.
+4. **Tailscale → Start Service and Connect**. The first time, a QR code appears: scan it
+   with your phone, log in to Tailscale and approve the device. The QR code closes by
+   itself once the device is on your tailnet; from there `ssh root@<tailscale-ip>` works.
+5. Disable key expiry for the device in the admin console. Without it the device logs out
+   after a few months and you scan a new QR code.
 
 **Disconnect and Stop Service** is the reverse: it runs `tailscale down`, stops the
 daemon and cleans up.
@@ -60,9 +55,8 @@ daemon and cleans up.
 
 | Item | Does |
 |---|---|
-| Start Service and Connect | starts `tailscaled` if needed, then `tailscale up --ssh` |
+| Start Service and Connect | starts `tailscaled` if needed, then `tailscale up --ssh`; shows a login QR code when the device is not logged in yet |
 | Disconnect and Stop Service | `tailscale down`, stop the daemon, clean up |
-| Setup → Set Auth Key | saves the key used for first registration |
 | Setup → Install / Update Binaries | fetches or updates the bundled binaries |
 | Advanced → Start / Stop Service | daemon only |
 | Advanced → Connect / Disconnect | client only |
@@ -112,9 +106,9 @@ account needs a reset:
 1. **Disconnect and Stop Service**.
 2. Rename `tailscaled.state` to `tailscaled.state.old` in `bin/`. Renaming keeps the reset
    reversible.
-3. **Set Auth Key** with a fresh key from the account you want to join.
-4. **Start Service and Connect**.
-5. Once that works, remove the old device entry from the previous admin console.
+3. **Start Service and Connect**, and scan the QR code with a phone logged in to the
+   account you want to join.
+4. Once that works, remove the old device entry from the previous admin console.
 
 ## Troubleshooting
 

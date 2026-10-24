@@ -7,16 +7,36 @@
     this plugin's own bin/ directory; no KUAL or other extension required.
 --]]
 
+local Blitbuffer    = require("ffi/blitbuffer")
+local CenterContainer = require("ui/widget/container/centercontainer")
+local Device        = require("device")
+local Font          = require("ui/font")
+local FrameContainer = require("ui/widget/container/framecontainer")
+local Geom          = require("ui/geometry")
+local GestureRange  = require("ui/gesturerange")
 local InfoMessage   = require("ui/widget/infomessage")
+local InputContainer = require("ui/widget/container/inputcontainer")
 local InputDialog   = require("ui/widget/inputdialog")
+local Size          = require("ui/size")
+local TextBoxWidget = require("ui/widget/textboxwidget")
 local UIManager     = require("ui/uimanager")
+local VerticalGroup = require("ui/widget/verticalgroup")
+local VerticalSpan  = require("ui/widget/verticalspan")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local logger        = require("logger")
 local lfs           = require("libs/libkoreader-lfs")
 local _             = require("gettext")
 
+-- QRWidget only exists in newer KOReader; without it the login link is shown as text.
+local has_qr, QRWidget = pcall(require, "ui/widget/qrwidget")
+
 local SOCKET_PATH = "/var/run/tailscale/tailscaled.sock"
 local TUN_PATH    = "/dev/net/tun"
+
+-- How long to wait for a login link, and for the user to finish logging in.
+local LOGIN_URL_TIMEOUT = 30
+local LOGIN_TIMEOUT     = 300
+local LOGIN_POLL        = 2
 
 local Tailscale = WidgetContainer:extend{
     name        = "tailscale",
@@ -139,6 +159,15 @@ function Tailscale:requireTun()
     return false
 end
 
+-- Return tailscaled's BackendState (e.g. "Running", "NeedsLogin", "Stopped")
+-- and the pending login URL, if any.
+function Tailscale:backendState()
+    local out = self:capture(string.format('"%s" status --json', self.tailscale_bin))
+    local state = out:match('"BackendState"%s*:%s*"([^"]*)"')
+    local url = out:match('"AuthURL"%s*:%s*"([^"]+)"')
+    return state, url
+end
+
 function Tailscale:isSocketReady()
     return lfs.attributes(SOCKET_PATH, "mode") == "socket"
 end
@@ -205,26 +234,33 @@ end
 -- Client operations
 -- ---------------------------------------------------------------------------
 
+-- Bring the node up. Returns "qr" when it has to log in and there is no auth
+-- key, so the caller can start the QR login once its spinner has closed.
 function Tailscale:connectTailscaleInternal()
     local log = self.paths.tailscale_start_log
+    local state = self:backendState()
 
-    -- Try reconnecting without an auth key first (works when the node is
-    -- already registered and key expiry has been disabled).  A 15-second
-    -- Tailscale's own timeout prevents hanging on a fresh/reset node that
-    -- would otherwise wait for a login URL indefinitely. Using the CLI flag
-    -- also avoids depending on a separate `timeout` utility on the device.
-    local reconnect = string.format(
-        '"%s" up --ssh --timeout=15s >> "%s" 2>&1', self.tailscale_bin, log)
-    if self:exec(reconnect) then
+    if state == "Running" then
         self:showInfo(_("Connected to Tailscale!"), 3)
         return
     end
 
-    -- Fall back to auth key for first-time registration or after a reset.
+    -- A node that has logged in before reconnects without any key. Tailscale's
+    -- own timeout keeps this from hanging if the saved login turns out to be
+    -- stale. A fresh or reset node needs a login, so skip straight to that.
+    if state ~= "NeedsLogin" and state ~= "NoState" then
+        local reconnect = string.format(
+            '"%s" up --ssh --timeout=15s >> "%s" 2>&1', self.tailscale_bin, log)
+        if self:exec(reconnect) then
+            self:showInfo(_("Connected to Tailscale!"), 3)
+            return
+        end
+    end
+
+    -- An auth key, if one was saved, logs in without any interaction.
     local auth_key = self:readFile(self.auth_key_file)
     if not auth_key then
-        self:showInfo(_("Reconnect failed and auth.key is empty.\nAdd your auth key via Setup > Set Auth Key."), 5)
-        return
+        return "qr"
     end
 
     -- The default Tailscale timeout is 0 (wait forever), so bound the auth
@@ -240,6 +276,126 @@ function Tailscale:connectTailscaleInternal()
     end
 end
 
+-- ---------------------------------------------------------------------------
+-- QR login
+-- ---------------------------------------------------------------------------
+
+-- A full-screen card with the login link as a QR code. Tapping it cancels.
+function Tailscale:newLoginScreen(url, on_cancel)
+    local Screen = Device.screen
+    local text_width = math.floor(Screen:getWidth() * 0.8)
+    local qr_size = math.floor(math.min(Screen:getWidth(), Screen:getHeight()) * 0.55)
+
+    local body = VerticalGroup:new{
+        align = "center",
+        TextBoxWidget:new{
+            text = _("Scan with your phone and log in to Tailscale.\nThis device joins your tailnet as soon as you approve it."),
+            face = Font:getFace("cfont", 20),
+            width = text_width,
+            alignment = "center",
+        },
+        VerticalSpan:new{ width = Size.padding.fullscreen * 2 },
+    }
+    if has_qr then
+        table.insert(body, QRWidget:new{ text = url, width = qr_size, height = qr_size })
+        table.insert(body, VerticalSpan:new{ width = Size.padding.fullscreen * 2 })
+    end
+    table.insert(body, TextBoxWidget:new{
+        text = url,
+        face = Font:getFace("x_smallinfofont"),
+        width = text_width,
+        alignment = "center",
+    })
+    table.insert(body, VerticalSpan:new{ width = Size.padding.fullscreen })
+    table.insert(body, TextBoxWidget:new{
+        text = _("Tap to cancel."),
+        face = Font:getFace("x_smallinfofont"),
+        width = text_width,
+        alignment = "center",
+    })
+
+    local frame = FrameContainer:new{
+        background = Blitbuffer.COLOR_WHITE,
+        bordersize = Size.border.window,
+        radius = Size.radius.window,
+        padding = Size.padding.fullscreen * 2,
+        body,
+    }
+    local screen = InputContainer:new{
+        modal = true,
+        ges_events = {
+            TapCancel = {
+                GestureRange:new{
+                    ges = "tap",
+                    range = Geom:new{ x = 0, y = 0, w = Screen:getWidth(), h = Screen:getHeight() },
+                },
+            },
+        },
+        CenterContainer:new{ dimen = Screen:getSize(), frame },
+    }
+    function screen:onShow()
+        UIManager:setDirty(self, function() return "ui", frame.dimen end)
+        return true
+    end
+    function screen:onCloseWidget()
+        UIManager:setDirty(nil, function() return "ui", frame.dimen end)
+    end
+    function screen:onTapCancel()
+        on_cancel()
+        return true
+    end
+    return screen
+end
+
+-- Log in without an auth key: `tailscale up` waits for a browser login, and
+-- the plugin shows its login link as a QR code until tailscaled reports Running.
+function Tailscale:loginWithQR()
+    local log = self.paths.tailscale_start_log
+    os.execute("pkill -x tailscale 2>/dev/null")
+    os.execute(string.format('nohup "%s" up --ssh >> "%s" 2>&1 &', self.tailscale_bin, log))
+
+    local started = os.time()
+    local waiting = InfoMessage:new{ text = _("Getting a login link from Tailscale…") }
+    UIManager:show(waiting)
+    local screen, poll
+
+    local function finish(msg, timeout)
+        UIManager:unschedule(poll)
+        if waiting then UIManager:close(waiting); waiting = nil end
+        if screen then UIManager:close(screen); screen = nil end
+        if msg then self:showInfo(msg, timeout) end
+    end
+
+    local function cancel(msg)
+        os.execute("pkill -x tailscale 2>/dev/null")
+        finish(msg, 4)
+    end
+
+    poll = function()
+        local state, url = self:backendState()
+        if state == "Running" then
+            finish(_("Connected to Tailscale!"), 3)
+            return
+        end
+        if url and not screen then
+            if waiting then UIManager:close(waiting); waiting = nil end
+            screen = self:newLoginScreen(url, function() cancel(_("Login cancelled.")) end)
+            UIManager:show(screen)
+        end
+        local elapsed = os.time() - started
+        if not screen and elapsed > LOGIN_URL_TIMEOUT then
+            cancel(_("Could not get a login link.\nCheck Wi-Fi and see tailscale_start.log in the plugin's bin/ directory."))
+            return
+        end
+        if elapsed > LOGIN_TIMEOUT then
+            cancel(_("Login timed out. Try again."))
+            return
+        end
+        UIManager:scheduleIn(LOGIN_POLL, poll)
+    end
+    UIManager:scheduleIn(LOGIN_POLL, poll)
+end
+
 function Tailscale:disconnectTailscaleInternal()
     local log = self.paths.tailscale_stop_log
     if self:exec(string.format('"%s" down >> "%s" 2>&1', self.tailscale_bin, log)) then
@@ -253,14 +409,15 @@ end
 
 function Tailscale:startTailscale()
     if not self:requireTun() then return end
-    self:withSpinner(_("Starting tailscaled and connecting…"), function()
+    local next_step = self:withSpinner(_("Starting tailscaled and connecting…"), function()
         if not self:ensureTailscaledRunning(false) then
             self:showInfo(_("tailscaled failed to start in kernel TUN mode.\nSee tailscaled_tun.log in the plugin's bin/ directory."), 5)
             return
         end
 
-        self:connectTailscaleInternal()
+        return self:connectTailscaleInternal()
     end)
+    if next_step == "qr" then self:loginWithQR() end
 end
 
 function Tailscale:stopTailscale()
@@ -284,14 +441,15 @@ function Tailscale:stopTailscale()
 end
 
 function Tailscale:connectTailscale()
-    self:withSpinner(_("Connecting to Tailscale…"), function()
+    local next_step = self:withSpinner(_("Connecting to Tailscale…"), function()
         if not self:isSocketReady() and not self:isRunning("tailscaled") then
             self:showInfo(_("tailscaled is not running.\nUse Start Service or Start Service and Connect."), 5)
             return
         end
 
-        self:connectTailscaleInternal()
+        return self:connectTailscaleInternal()
     end)
+    if next_step == "qr" then self:loginWithQR() end
 end
 
 function Tailscale:disconnectTailscale()
@@ -414,7 +572,7 @@ function Tailscale:updateBinaries()
 
         if current == "none" then
             self:showInfo(string.format(
-                _("Tailscale v%s installed!\nAdd your auth key via Set Auth Key."), latest), 5)
+                _("Tailscale v%s installed!\nNow tap Start Service and Connect."), latest), 5)
         else
             self:showInfo(string.format(_("Tailscale updated to v%s."), latest), 4)
         end
@@ -432,7 +590,7 @@ function Tailscale:setAuthKey()
         title       = _("Set Tailscale Auth Key"),
         input       = current,
         input_hint  = _("tskey-auth-…"),
-        description = _("Paste your Tailscale auth key.\nGet one from tailscale.com/admin → Settings → Keys.\n\nSwitching accounts? Reset the saved node state first; restarting the device does not clear it."),
+        description = _("Optional. With a key saved, Start Service and Connect logs in without the QR code.\nGet one from tailscale.com/admin → Settings → Keys."),
         buttons = {
             {
                 {
